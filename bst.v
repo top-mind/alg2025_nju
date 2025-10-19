@@ -1,3 +1,9 @@
+(*  BST 和 tree 的实现和性质来自 Software Foundations Volume 3
+    Verified Functional Algorithms, SearchTree 一节
+    https://softwarefoundations.cis.upenn.edu/vfa-current/SearchTree.html
+
+    我们给出了递归合并排序二叉树的 merge 算法，并证明了其正确性 merge_correct *)
+(*  本程序在 rocq 9.0.0 下编译通过 *)
 From Stdlib Require Export List.
 Export ListNotations.
 From Stdlib Require Import FunctionalExtensionality.
