@@ -1,0 +1,27 @@
+\documentclass{article}
+\usepackage{xeCJK}
+\setCJKmainfont{FandolSong}
+\setCJKmonofont{Noto Sans Mono CJK SC}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{amssymb}
+\usepackage[noend]{algpseudocode}
+\usepackage[margin=1in]{geometry}
+\usepackage{float}
+\usepackage{hyperref}
+\setlength{\parindent}{0pt}
+\renewcommand{\thesection}{\arabic{section}}
+\newcommand{\problem}{\refstepcounter{section}\section*{Problem \thesection}}
+\renewcommand{\thesubsection}{(\alph{subsection})}
+\newcommand{\subproblem}[1][]{\refstepcounter{subsection}\paragraph{\thesubsection{}#1}}
+\newcommand{\tightsubproblem}[1][]{\refstepcounter{subsection}\textbf{\thesubsection#1\hspace{2ex}}}
+\newcommand{\ta}[1]{\textsc{#1}}
+\newcommand{\admit}{\hfill$\square$}
+\newtheorem{lem}{Lemma}
+\newtheorem{thm}{Thm}[section]
+\newtheorem{co}{Co}[thm]
+\algrenewcommand\algorithmiccomment[1]{\hfill// #1}
+\renewcommand\qedsymbol{$\blacksquare$}
+
+\author{}
+\date{}
