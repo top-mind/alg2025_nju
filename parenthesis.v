@@ -587,7 +587,7 @@ Proof.
     apply eval_P. apply eval_refl. apply eval_repeat_N.
 Qed.
 
-Theorem greedy_eval_eval :
+Theorem greedy_eval_sound :
   forall l l',
     greedy_eval l l' ->
     eval l l'.
@@ -836,7 +836,7 @@ Proof with auto.
               rewrite count_occ_repeat_neq; try discriminate.
               rewrite H6. rewrite count_occ_app. simpl. lia.
             + rewrite Hlen.
-              apply greedy_eval_eval, greedy_eval_flip with (n:=S n).
+              apply greedy_eval_sound, greedy_eval_flip with (n:=S n).
         }
         (* hd N P  P^n  N *)
         (* hd N N N^m P *)
@@ -893,44 +893,43 @@ Proof with auto.
           apply add_lt_mono_l_proj_l2r. simpl.
           rewrite count_occ_repeat_neq; try discriminate.
           rewrite Heq. rewrite count_occ_app. simpl. lia. }
-        { apply greedy_eval_eval.
+        { apply greedy_eval_sound.
           apply greedy_eval_flip with (n:=0). }
 Qed.
 
-Theorem greedy_eval_correct_aux :
+Theorem greedy_eval_complete_aux :
   forall n l l',
     eval l l' ->
     count_occ eqb l' N < n ->
     exists L,
       (weaker l' L) /\
-      greedy_eval l L /\ eval l L.
-Proof with eauto using greedy_eval_eval.
+      greedy_eval l L.
+Proof with eauto using greedy_eval_sound.
   induction n; intros.
   - lia.
   - apply greedy_eval_progress in H.
     destruct H as [|[L [Hweaker [Hcount Heval]]]].
-    + exists l'. repeat split...
+    + exists l'. split...
     + specialize IHn with (1:=Heval).
-      destruct IHn as [L' [Hweaker' [Hgreedy Heval']]].
+      destruct IHn as [L' [Hweaker' Hgreedy]].
       * lia.
-      * exists L'. repeat split...
+      * exists L'. split...
 Qed.
 
 (* main theorem *)
-Definition greedy_eval_correct_spec :=
+Definition greedy_eval_complete_spec :=
   forall l l',
     eval l l' ->
     exists L,
       (weaker l' L) /\
-      greedy_eval l L /\
-      eval l L.
+      greedy_eval l L.
 
-Theorem greedy_eval_correct :
-  greedy_eval_correct_spec.
+Theorem greedy_eval_complete :
+  greedy_eval_complete_spec.
 Proof.
-  unfold greedy_eval_correct_spec.
+  unfold greedy_eval_complete_spec.
   intros.
-  apply greedy_eval_correct_aux with (n:=S (count_occ eqb l' N)); auto.
+  apply greedy_eval_complete_aux with (n:=S (count_occ eqb l' N)); auto.
 Qed.
 
 End sign_eval.
@@ -938,7 +937,7 @@ End sign_eval.
 (* generate the definition dependence graph *)
 (*
 Require dpdgraph.dpdgraph.
-Print DependGraph sign_eval.greedy_eval_correct.
+Print DependGraph sign_eval.greedy_eval_complete_spec.
 
 Print sign_eval.
 *)
