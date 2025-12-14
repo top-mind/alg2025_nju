@@ -1,3 +1,4 @@
+%!TeX root = ps11-sol.tex
 \input{preamble}
 \usepackage{tikz}
 \usetikzlibrary{arrows.meta, backgrounds, quotes}
@@ -153,16 +154,14 @@ That is to minimize
 \begin{equation*}
 \sum_{(u, v)\in p} -\lg(r(u, v))\mid u\To{p}v
 \end{equation*}
-Since $-\lg(r)\ge 0$, the problem is transformed to non-negative weight shortest path problem, which can be solved by Dijkstra's algorithm. But we have to deal with 2 issues.
-\begin{description}
-\item[Round-off error] It is out of scope of our algorithm course \cite{ALG:intro}. 但是我一时兴起了, and we will briefly show the error is acceptable using IEEE 754 format (base 2). Suppose normal floating point number $0<r<1$ is represented as $r=c\times 2^{-q}$, $1 \le c < 2$ is a $p$ bit precision, and $0 < q < 2^e$ is an $e$ bit exponent.\\
+Since $-\lg(r)\ge 0$, the problem is transformed to non-negative weight shortest path problem, which can be solved by Dijkstra's algorithm. (In real world, instead of computing $\lg$, we can modify the \ta{Initialize-Single-Source}, \ta{Relax} procedure and change min-priority queue to max-priority queue. We will show how to modify Dijkstra in the next problem 5. The difference is, besides floating point error\footnote{Briefly show the error is acceptable using IEEE 754 format (base 2). Suppose normal floating point number $0<r<1$ is represented as $r=c\times 2^{-q}$, $1 \le c < 2$ is a $p$ bit precision, and $0 < q < 2^e$ is an $e$ bit exponent.\\
 Since $-\lg(r)$ has decreasing derivative (absolute value), we study when $r$ is small, where $c$ is close to 1.\\
 Let $c_1 = 1, c_2 = 1+2^{-{p}}$. $-\lg(r_1)=q, -\lg(r_2)=q-\lg(1+2^{-p})\approx q-2^{-p}$.
-For an $1+e+p$ bit float number $r$, $\lg(r)$ needs $e+p$ bit precision. So if we use \verb|float|(1+8+23) for $r$ and \verb|double|(1+11+52) for $-\lg r$, the error will be acceptable.
-\item[{\boldmath $r=0$}] Let $-\lg(0)=\infty$, then Dijkstra's algorithm on $(G,w,s)$ will ignore the $\infty$ weight edges since $v.d > u.d + \infty$ never holds.
+For an $1+e+p$ bit float number $r$, $\lg(r)$ needs $e+p$ bit precision. So if we use \texttt{float}(1+8+23) for $r$ and \texttt{double}(1+11+52) for $-\lg r$, the error will be acceptable.} whether we need to prove the correctness. The $\lg$ hack reduces the problem to shortest path problem and nothing left to prove, while in the next problem, there's no direct transformation. So we modify Dijkstra's algorithm, and only provide a proof schema).
+
+For {\boldmath $r=0$}, let $-\lg(0)=\infty$, then Dijkstra's algorithm on $(G,(-\lg)\circ r,s)$ will ignore the $\infty$ weight edges since $v.d > u.d + \infty$ never holds.
 If $t.\pi\neq\it NIL$, we are done.
-If $t.\pi=\it NIL$, there is no path from $s$ to $t$ that does not traverse an edge with reliability 0. Run \ta{BFS}$(G,s)$ to find a path from $s$ to $t$.
-\end{description}
+If $t.\pi=\it NIL$, there is no path from $s$ to $t$ that does not traverse an edge with reliability 0. Run \ta{BFS}$(G,s)$ to find a path from $s$ to $t$.\\
 \ta{Path} is modified from \ta{Print-Path} in Section 22.2.\\[1em]
 \ta{Path}$(s,t)$
 \begin{algorithmic}[1]
@@ -240,7 +239,5 @@ The correctness of the algorithm:
 
 \begin{thebibliography}{9}
 \bibitem{wikipedia:set-cover} url: \url{https://en.wikipedia.org/wiki/Set_cover_problem#Greedy_algorithm}
-\bibitem{ALG:intro} \url{https://chaodong.me/teaching/alg/2025/#h1.1.1_description}
-``This course introduces to you some of the most basic and important algorithms that lie at the core of computer science, along with the various techniques used in the design and analysis of these algorithms.'' 
 \end{thebibliography}
 \end{document}
