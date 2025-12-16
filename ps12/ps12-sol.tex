@@ -1,3 +1,4 @@
+\documentclass{article}
 \input{preamble}
 \usepackage{graphicx}
 \usepackage{import}
@@ -108,7 +109,7 @@ $\begin{pmatrix}
 -4 & 4 & \infty & 0 & -3 & \infty \\
 5 & 7 & \infty & 9 & 0 & \infty \\
 3 & 5 & 10 & 7 & 4 & 0 \\
-\end{pmatrix}$.\\
+\end{pmatrix}$\\
 $h(a, b, c, d, e, f)=(-5,3,0,-1,-4,-8)$.\\
 The graph after reweighting with $\hat{w}(u, v)=w(u, v)+h(u)-h(v)$:
 \begin{center}
@@ -116,7 +117,7 @@ The graph after reweighting with $\hat{w}(u, v)=w(u, v)+h(u)-h(v)$:
 \end{center}
 \end{description}
 \problem %2
-The algorithms are dynamic programming on DAG. They share the same framework:
+The algorithms are dynamic programming on a DAG. They share the same framework:
 \begin{algorithmic}[1]
     \State topologically sort the vertices of $G.V$
     \State $dp=initial(G,w)$
@@ -142,15 +143,15 @@ The algorithms are dynamic programming on DAG. They share the same framework:
 \item[(c)] Similar to (b). $initial[u]=w(u); dp[v]=\max\{dp[v], dp[u] + w(v)\}; \textbf{return }dp$.
 \end{description}
 \problem %3
-\textbf{This problem may be flawed, or I do not fully capture the intent of our professor.}
+\textbf{This problem may be flawed, or I may not fully capture the intent of our professor.}
 
 We want to maximize the value of:
 $$R[c_j, c_{i_1}]\times R[c_{i_1},c_{i_2}]\times\cdots\times R[c_{i_k},c_j]$$
-Based on the fact that the problem is modified from CLRS Problem 24-3, we will discuss about the purpose of the problem.
+Based on the fact that the problem is modified from CLRS Problem 24-3, we will discuss the purpose of the problem.
 
-First, can $i_x = j$? If we restrict that $i_x\neq j$, then the Traveling Salesman Problem can be reduced to this problem, which is NP-Hard. Now we assume $i_x$ can be $j$, and there is no restriction on $k$. Then, if there is an arbitrage, we have some $c_j$ can exchange for arbitrary amount of $c_j$ via the arbitrage.
+First, can $i_x = j$? If we restrict that $i_x\neq j$, then the Traveling Salesman Problem can be reduced to this problem, which is NP-Hard. Now we assume $i_x$ can be $j$, and there is no restriction on $k$. Then, if there is an arbitrage, we have some $c_j$ that can be exchanged for an arbitrary amount of $c_j$ via the arbitrage.
 
-Second, is $k=0$ so that the value is $R[c_j, c_j]$ a valid choice? And Is {\it no exchange} a valid choice? Luckily, by proper preprocessing, the problem can be reduced to a must-exchange and $k$-can-be-$0$ variation.
+Second, is $k=0$ so that the value is $R[c_j, c_j]$ a valid choice? And is {\it no exchange} a valid choice? Luckily, by proper preprocessing, the problem can be reduced to a must-exchange and $k$-can-be-$0$ variation.
 
 \begin{table}[H]
     \centering
@@ -162,9 +163,9 @@ Second, is $k=0$ so that the value is $R[c_j, c_j]$ a valid choice? And Is {\it 
     \caption{Preprocessing in various conditions}
     \label{tab:explain}
 \end{table}
-Let $D(j)$ be the maximum unit of currency one unit of $c_j$ can buy. We use Floyd-Warshall algorithm with recurrence formula
+Let $D(j)$ be the maximum unit of currency one unit of $c_j$ can buy. We use the Floyd-Warshall algorithm with the recurrence formula
 $$d^{(k)}(i,j)=\max\{d^{(k-1)}(i,k)\times d^{(k-1)}(k,j)\}$$
-At the end of Floyd-Warshall, if $c_j$ is on an arbitrage, a directed cycle that product of weights on the path $>1$, then $d^{(n)}(j,j)>1$ and $D(j)=\infty$. If $c_j$ can reach an arbitrage and the arbitrage can reach $c_j$ though positive-weight edges, then $D(j)=\infty$. In both cases, $c_j$ and the arbitrage are in a strongly connected component. If the SCC of $c_j$ does not contain an arbitrage, then $D(j)=d^{(n)}(j,j)$.\\[1em]
+At the end of Floyd-Warshall, if $c_j$ is on an arbitrage, a directed cycle that product of weights on the path $>1$, then $d^{(n)}(j,j)>1$ and $D(j)=\infty$. If $c_j$ can reach an arbitrage and the arbitrage can reach $c_j$ through positive-weight edges, then $D(j)=\infty$. In both cases, $c_j$ and the arbitrage are in a strongly connected component. If the SCC of $c_j$ does not contain an arbitrage, then $D(j)=d^{(n)}(j,j)$.\\[1em]
 \ta{MaxProduct}($R[1..n, 1..n]$)
 \begin{algorithmic}[1]
 \State $G=([1..n], \{(i, j)\mid R(i,j)>0\})$
@@ -218,11 +219,11 @@ $$dp[i,z] = \min\{dp[i,z], \ dp[i-1,u] + weight(u,z)\}$$
 The running time is $O(kE)$.
 \problem %5
 \begin{description}
-\item[(a)] \textbf{Yes}. Suppose that to optimally parenthesize $A_i\cdots A_j$, we split between $A_k$ and $A_{k+1}$. Then the way we parenthesize $A_i\cdots A_k$ and $A_{k+1}\cdots A_j$ is optimal. Otherwise we can substitute that parenthesization to produce another way to parenthesize $A_i\cdots A_j$ whose cost is higher than the optimum. Contradictory.
-\item[(b)] \textbf{No}. The way we cut the rod on one side affects the number of pieces we can use on the other side. Suppose the length of the rod is $4$, and $l_1=2,l_2=1$. If we cut the rod at middle. Then, cutting the left sub-rod into $[1, 1]$ or $[2]$ affects whether the right sub-rod can be cut into $[1, 1]$. The subproblems are not independent.
+\item[(a)] \textbf{Yes}. Suppose that to optimally parenthesize $A_i\cdots A_j$, we split between $A_k$ and $A_{k+1}$. Then the way we parenthesize $A_i\cdots A_k$ and $A_{k+1}\cdots A_j$ is optimal. Otherwise, we can substitute that parenthesization to produce another way to parenthesize $A_i\cdots A_j$ whose cost is higher than the optimum. Contradictory.
+\item[(b)] \textbf{No}. The way we cut the rod on one side effects the number of pieces we can use on the other side. Suppose the length of the rod is $4$, and $l_1=2,l_2=1$. If we cut the rod in the middle. Then, cutting the left sub-rod into $[1, 1]$ or $[2]$ affects whether the right sub-rod can be cut into $[1, 1]$. The subproblems are not independent.
 \end{description}
 \problem %6
-This problem is a classic variation of Matrix Chain Multiplication problem or the Optimal Binary Search Tree problem. It can be solved using Dynamic Programming.
+This problem is a classic variation of the Matrix Chain Multiplication problem or the Optimal Binary Search Tree problem. It can be solved using Dynamic Programming.
 \paragraph{Definitions} Add parentheses to change the order of evaluation to maximize the value of the expression
     $$c_1 x_1 c_2 x_2 c_3 ... c_n x_n$$
   where $x_i$ are non-negative integers, $c_i$ are $+$ or $-$, and $c_1 = +$.
@@ -259,10 +260,8 @@ This problem is a classic variation of Matrix Chain Multiplication problem or th
 \vspace{1em}
 The running time is $\sum_{l=2}^{n}(n-l+1)(l-1)=O(n^3)$.
 
-\paragraph{Greedy} Yes! This problem has a greedy solution.
-
-Let \verb|eval|$(c)$ be all possible sign configurations reachable by parenthesizing the expression with sign array $c$.
-The relation can be recursively defined in rocq:
+\paragraph{Greedy} Yes! This problem has a greedy solution. \verb|eval|$(c)$ be all possible sign configurations reachable by parenthesizing the expression with sign array $c$.
+The relation can be recursively defined in Rocq:
 \begin{minted}{coq}
 Inductive sign := P | N.
 
@@ -294,7 +293,7 @@ Inductive greedy_eval : list sign -> list sign -> Prop :=
       (l1 ++ N :: repeat P n ++ N :: l2)
       (l1 ++ N :: repeat N n ++ P :: repeat P (length l2)).
 \end{minted}
-This is because \verb|greedy_eval| is sound and complete (it is a subset of \verb|eval| and contains the  largest one).
+This is because \verb|greedy_eval| is sound and complete (it is a subset of \verb|eval| and contains the largest one).
 \begin{minted}{coq}
 Theorem greedy_eval_sound :
   forall l l', greedy_eval l l' -> eval l l'.
@@ -351,5 +350,4 @@ Definition greedy_eval_complete_spec :=
 \end{minipage}\vspace{1em}
 The greedy algorithm runs in $O(n)$.
 Complete proof file is here \url{https://github.com/top-mind/alg2025_nju/blob/master/parenthesis.v}.
-(The machine checked proof is absolutely correct. The only weakness occurs in the definitions. That is, we prove the wrong theorem. Therefore, to check our reasoning, you do not need to open the link. )
 \end{document}

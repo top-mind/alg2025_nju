@@ -1,34 +1,9 @@
 \documentclass{article}
-\usepackage{xeCJK}
-\setCJKmainfont{FandolSong}
-\setCJKmonofont{Noto Sans Mono CJK SC}
-\usepackage{amsmath}
-\usepackage{amsthm}
-\usepackage{amssymb}
-\usepackage[noend]{algpseudocode}
-\usepackage{xcolor}
-\usepackage[margin=1in]{geometry}
-\usepackage{float}
+\input{preamble}
 \usepackage{tikz}
 \usetikzlibrary{arrows.meta}
-\usepackage{hyperref}
-\setlength{\parindent}{0pt}
-\renewcommand{\thesection}{\arabic{section}}
-\newcommand{\problem}{\refstepcounter{section}\section*{Problem \thesection}}
-\renewcommand{\thesubsection}{(\alph{subsection})}
-\newcommand{\subproblem}[1][]{\refstepcounter{subsection}\paragraph{\thesubsection#1}}
-\newcommand{\tightsubproblem}[1][]{\refstepcounter{subsection}\textbf{\thesubsection#1\hspace{2ex}}}
-\newcommand{\ta}[1]{\textsc{#1}}
-\newcommand{\admit}{\hfill$\square$}
-\newtheorem{lem}{Lemma}
-\newtheorem{thm}{Thm}[section]
-\newtheorem{co}{Co}[thm]
-\algrenewcommand\algorithmiccomment[1]{\hfill// #1}
-\renewcommand\qedsymbol{$\blacksquare$}
 
 \title{ALG Problem Set 10}
-\author{}
-\date{}
 
 \begin{document}
 \maketitle
@@ -38,7 +13,7 @@
 Traversing the graph to the first leaf node in a DFS tree, given by the following theorem, reaches a non-key vertex.
 \begin{thm} Let $T$ be a spanning tree of $G$. If $u$ is a leaf node of $T$, then $u$ is not a key vertex of $G$. \end{thm}
 \begin{proof}
-Assume to the contrary that $u$ is a key vertex of $G$, the deletion of $u$ disconnects $G$. Then it also disconnect $T$, but $T - u$ is a tree. Therefore $u$ is not a key vertex of $G$.
+Assume to the contrary that $u$ is a key vertex of $G$, the deletion of $u$ disconnects $G$. Then it also disconnects $T$, but $T-u$ is a tree. Therefore, $u$ is not a key vertex of $G$.
 \end{proof}
 \begin{algorithmic}[1]
 \State $u = V[1]$
@@ -54,7 +29,7 @@ Assume to the contrary that $u$ is a key vertex of $G$, the deletion of $u$ disc
 \State \Return $u$
 \end{algorithmic}
 \subproblem %b
-$T - u$ is a spanning tree of $G - u$. Let the deletion order be the post traversal order of $T$. In each deletion, a leaf node of $T$ aka non-key vertex of $G$ is deleted and the remaining tree is a spanning tree of the remaining graph. By induction, the post traversal order of DFS tree is a valid deletion order.\\[1em]
+$T - u$ is a spanning tree of $G - u$. Let the deletion order be the post-traversal order of $T$. In each deletion, a leaf node of $T$, aka a non-key vertex of $G$, is deleted, and the remaining tree is a spanning tree of the remaining graph. By induction, the post-traversal order of the DFS tree is a valid deletion order.\\[1em]
 \ta{DFS1}$(G,u,result)$
 \begin{algorithmic}[1]
 \State $u.vis = \it True$
@@ -98,15 +73,15 @@ $T - u$ is a spanning tree of $G - u$. Let the deletion order be the post traver
 \end{tikzpicture} \\[1em]
 Let $f:V\to\{\textit{True},\textit{False}\}$, $f(\overline{x_i})=\neg f(x_i)$. $f(x_1), f(x_2), \cdots, f(x_n)$ be an assignment of $x_1, x_2, \cdots x_n$. \\[1ex]
 \tightsubproblem %b
-\textit{Proof.} Assume $I$ is satisfiable. Exists $f$, $I(f(x_1), f(x_2), \cdots, f(x_n))=\it True$. Since for each $(u, v)\in E$, clause $\overline{u}\lor v$ or $v\lor\overline{u}$ is in $I$. So $\textit{True}  =\overline{u}\lor v=\neg f(u)\lor f(v)$, $f(u)\rightarrow f(v)$. Because of $x_i$ and $\overline{x_i}$ is in a connected component, $x_i \rightarrow^{*} \overline{x_i}$ and vice versa. Boolean algebra on the paths between $x_i$ and $\overline{x_i}$ gives a contradictory formula $f(x_i)\leftrightarrow\neg f(x_i)$. Therefore $I$ is unsatisfiable.
+\textit{Proof.} Assume $I$ is satisfiable. Exists $f$, $I(f(x_1), f(x_2), \cdots, f(x_n))=\it True$. Since for each $(u, v)\in E$, clause $\overline{u}\lor v$ or $v\lor\overline{u}$ is in $I$. So $\textit{True}  =\overline{u}\lor v=\neg f(u)\lor f(v)$, $f(u)\rightarrow f(v)$. Because of $x_i$ and $\overline{x_i}$ is in a connected component, $x_i \rightarrow^{*} \overline{x_i}$ and vice versa. Boolean algebra on the paths between $x_i$ and $\overline{x_i}$ gives a contradictory formula $f(x_i)\leftrightarrow\neg f(x_i)$. Therefore, $I$ is unsatisfiable.
 \hfill\qedsymbol
 \subproblem %c
 \label{p2:scc}
-\textit{Proof.} Induction on $n$. The base case is $n=0$, nothing to assign. Suppose it is true for all $n'<n$. Choose one $SCC$ that has no outgoing edge. Assign $\it True$ to all $u\in SCC$ and $\it False$ to corresponding $\overline{u}$. Since $\overline{u}$ is not in $SCC$, there is no conflict. For clause involving $u$: $u \lor v$ is satisfied; $\overline{u} \lor v$ gives $(u, v)\in E$, but $u$ has no outgoing edge. Let $I'$ be an instance of 2SAT by removing all clauses involving $u$ in $I$. The SCCs of $G_{I'}$ do not contain both a literal and its negation. By induction hypothesis, $I'$ is satisfiable. Therefore $I$ is satisfiable.
+\textit{Proof.} Induction on $n$. The base case is $n=0$, nothing to assign. Suppose it is true for all $n'<n$. Choose one $SCC$ that has no outgoing edge. Assign $\it True$ to all $u\in SCC$ and $\it False$ to corresponding $\overline{u}$. Since $\overline{u}$ is not in $SCC$, there is no conflict. For clause involving $u$: $u \lor v$ is satisfied; $\overline{u} \lor v$ gives $(u, v)\in E$, but $u$ has no outgoing edge. Let $I'$ be an instance of 2SAT by removing all clauses involving $u$ in $I$. The SCCs of $G_{I'}$ do not contain both a literal and its negation. By the induction hypothesis, $I'$ is satisfiable. Therefore, $I$ is satisfiable.
 \hfill\qedsymbol
 \subproblem %d
-Run Tarjan's SCC algorithm on $G_I$. In \ref{p2:scc}, we assign $\it True$ to vertex topological larger.
-If the topological order in the SCC-DAG is larger, the vertex was traversed later, and was popped from the stack earlier, resulting in a smaller component number. Therefore, we can assign $\it True$ to the one with smaller component number in affirmation-negation pair.
+Run Tarjan's SCC algorithm on $G_I$. In \ref{p2:scc}, we assign $\it True$ to a vertex topologically larger.
+If the topological order in the SCC-DAG is larger, the vertex was traversed later and was popped from the stack earlier, resulting in a smaller component number. Therefore, we can assign $\it True$ to the one with the smaller component number in the affirmation-negation pair.
 \begin{algorithmic}[1]
 \State Build $(V, E)=G_I$ as described
 \State $scc=\ta{TarjanSCC}(V, E)$
@@ -155,7 +130,7 @@ Assume to the contrary that the graph has 2 different MSTs, $T$ and $T'$. There 
     \draw[-, color=red] (3) -- (4);
 \end{tikzpicture}
 \problem
-Note: it is required to add a precondition that $|V|\le |E|$ \cite{23-1}, to ensure the existence of second-best minimum spanning tree (SMST).
+Note: it is required to add a precondition that $|V|\le |E|$ \cite{23-1}, to ensure the existence of a second-best minimum spanning tree (SMST).
 \subproblem %a
 MST is unique: apply theorem \ref{thm:unique}. We need to show that for every cut, there is a unique light edge. It is true because each edge has unique weight.
 
@@ -206,7 +181,7 @@ Since $A - \{(x, y)\} \cup \{f\}$ is a spanning tree of $G$, we have $w(T) \le w
 \State \Return $max$
 \end{algorithmic}\vspace{1em}
 The running time for each $\ta{DFS2}$ is $O(|V|)$. Total running time is $O(|V|^2)$.
-\subproblem First we compute an MST $T$. In \ref{thm:cycle} we prove that there exists some edge $(x, y)\in E - T$, and $(u, v)\in T$ be the edge of maximum weight on the path between $x$ and $y$ on $T$ , such that $T - \{(u, v)\}\cup \{(x, y)\}$ is an SMST. The algorithm then tries every $(x, y)$, obtaining a subset of $\mathcal{T}-\{T\}$. At least one SMST is in the subset.
+\subproblem First, we compute an MST $T$. In \ref{thm:cycle} we prove that there exists some edge $(x, y)\in E - T$, and $(u, v)\in T$ be the edge of maximum weight on the path between $x$ and $y$ on $T$ , such that $T - \{(u, v)\}\cup \{(x, y)\}$ is an SMST. The algorithm then tries every $(x, y)$, obtaining a subset of $\mathcal{T}-\{T\}$. At least one SMST is in the subset.
 So a spanning tree in the subset of minimum weight is an SMST. \\[1em]
 \ta{SecondMST}$(G, w)$
 \begin{algorithmic}[1]
@@ -236,7 +211,7 @@ Line(s) & Time \\\hline
 10 & $O(|V|)$ \\\hline
 Total & $O(\ta{Prim} + |V|^2)$ \\\hline
 \end{tabular} \\[1em]
-The running time of $\ta{Prim}$, in the textbook, is related to the chosen of priority queue. If we implement it with brute force, where $\ta{ExtractMin}$ takes O($|V|$) and $\ta{DecreaseKey}$ takes $O(1)$. Then $T(Prim) = O(|V|^2+E) = O(|V|^2)$.
+The running time of $\ta{Prim}$, in the textbook, is related to the choice of priority queue. If we implement it with brute force, where $\ta{ExtractMin}$ takes O($|V|$) and $\ta{DecreaseKey}$ takes $O(1)$. Then $T(Prim) = O(|V|^2+E) = O(|V|^2)$.
 The total running time is $O(|V|^2)$, as specified.
 \problem %5
 \begin{algorithmic}[1]
@@ -263,7 +238,7 @@ The total running time is $O(|V|^2)$, as specified.
 \State \Return C
 \end{algorithmic}\vspace{1em}
 The running time is $O(n)$.
-For each iteration of outer loop from line 4 to line 16, assume $i$ increases by $\Delta_i$. And assume in the inner loop from line 6 to line 9, $i$ increases by $\delta_i$.
+For each iteration of the outer loop from line 4 to line 16, assume $i$ increases by $\Delta_i$. And assume in the inner loop from line 6 to line 9, $i$ increases by $\delta_i$.
 \begin{itemize}
     \item If $\delta_i=0$, then $t=j$ at line 10. $\Delta_i=1$ by line 16. The iteration takes $O(1)=O(\Delta_i)$ time.
     \item If $\delta_i>0$, the iteration takes $O(\delta_i)+O(1)=O(\Delta_i)$ time.
@@ -274,7 +249,7 @@ The running time of each iteration of the outer loop is $O(\Delta_i)$. So the to
     At the start of each iteration of the outer loop, $C$ is a cover of $X_i = \{(L_k, R_k) \mid k < i \}$, $R_j = \max\{R_k \mid k < i\}$, and $C$ is a subset of some smallest cover of $X$.
 \end{thm}
 \begin{proof}
-    Induction on iterations. The base case is when $i=2, j=1, C=X_2=\{(L_1, R_1)\}$. $C$ is the smallest cover of $X_2$ and $R_1=\max\{R_1\}$. Since $(L_1, R_1)$ is the only interval that covers point $L_1$, it should be included in any cover of $X$. So $C$ is a subset of some smallest cover of $X$.\\
+    Induction on iterations. The base case is when $i=2, j=1, C=X_2=\{(L_1, R_1)\}$. $C$ is the smallest cover of $X_2$ and $R_1=\max\{R_1\}$. Since $(L_1, R_1)$ is the only interval that covers point $L_1$, it should be included in any cover of $X$. So $C$ is a subset of some smallest cover of $X$. \\
     Suppose at the start of outer iteration $i_{5}$, the invariant holds.
     After the inner loop,
     $$\forall k<i_{10}.(L_k\le R_j),\ R_t=\max\{R_k\mid k<i_{10}\},\text{ and}\ i_{10}=n+1\lor R_{i_{10}} > R_j$$
@@ -282,7 +257,7 @@ The running time of each iteration of the outer loop is $O(\Delta_i)$. So the to
     \begin{enumerate}
         \item If $S=\emptyset$, then $t=j$. $C$ covers $\{(L_k, R_k)\mid k<i_{10}\}$. If $i_{10}\le n$, same as the base case, $i_{10}$ is included in the smallest cover of $X$. The invariant holds for the next iteration where $i=i_{10}+1, j=i$.
         \item If $S\neq\emptyset$, then $t\neq j$. We need to show that $C\cup \{(L_t, R_t)\}$ is a subset of some smallest cover of $X$. Suppose $C\subseteq C_{opt}$, $C_{opt}$ is a smallest cover of $X$. If $(L_t, R_t)\in C_{opt}$, we are done.
-        If $(L_t, R_t)\notin C_{opt}$, choose one interval $I$ in $C_{opt}\cap S$. $C\cup (L_t, R_t)$ covers $C\cup I$. So $C\subseteq C_{opt}-I\cup (L_t, R_t)$ is a subset of some smallest cover of $X$. The invarient holds for the next iteration $i=i_{10}, j=t$.
+        If $(L_t, R_t)\notin C_{opt}$, choose one interval $I$ in $C_{opt}\cap S$. $C\cup (L_t, R_t)$ covers $C\cup I$. So $C\subseteq C_{opt}-I\cup (L_t, R_t)$ is a subset of some smallest cover of $X$. The invariant holds for the next iteration $i=i_{10}, j=t$.
     \end{enumerate}
 \end{proof}
 \paragraph{Termination:} when the loop ends, $i=n+1$ and $C$ is a smallest cover of $X_{n+1}=X$.
@@ -290,11 +265,11 @@ The running time of each iteration of the outer loop is $O(\Delta_i)$. So the to
 \subproblem %a
 \begin{enumerate}
     \item Incorrect. \{(1,4),(2,3),(3,4)\}. {\it Opt} = \{(2,3),(3,4)\}, but the strategy selects \{(1,4)\}.
-    \item Correct. \label{stgy:2} \textit{Proof.} Map each activity $(l, r)$ to $(-r, -l)$. The optimal selection on mapped intervals is an optimal selection. Since strategy ``choose activity ends first'' is correct. The reflection strategy ``choose activity starts last'' is correct. \hfill\qedsymbol
+    \item Correct. \label{stgy:2} \textit{Proof.} Map each activity $(l, r)$ to $(-r, -l)$. The optimal selection on mapped intervals is also an optimal selection. Since the strategy ``choose activity ends first'' is correct. The reflection strategy ``choose activity starts last'' is correct. \hfill\qedsymbol
     \item Incorrect. \{(1,4),(3,5),(4,7)\}. {\it Opt} = \{(1,4),(4,7)\}, but the strategy selects \{(3,5)\}.
     \item Incorrect. An counterexample with 11 activities: \begin{align*}\{(1,2),(2,4),(4,6),(6,7),(3,5),(1,3),(1,3),(1,3),(5,7),(5,7),(5,7)\}\end{align*}
-    {\it Opt} = \{(1,2),(2,4),(4,6),(6,7)\}. But the strategy firstly choose $(3,5)$ which has 2 conflicts, and gives a size 3 selection.
-    \item Correct. For any optimal selection $S$, if any $x\in S$ completely contains another activity $y$, $S - \{x\} \cup \{y\}$ is an optimal selection. After discarding useless activities, an activity ends last must starts last (if it starts earlier than $y$, then it contains $y$). The strategy is correct by the correctness of strategy \ref{stgy:2}.
+    {\it Opt} = \{(1,2),(2,4),(4,6),(6,7)\}. But the strategy will first choose $(3,5)$, which has 2 conflicts, and gives a size 3 selection.
+    \item Correct. For any optimal selection $S$, if any $x\in S$ completely contains another activity $y$, $S - \{x\} \cup \{y\}$ is an optimal selection. After discarding useless activities, the activity that ends last must start last (if it starts earlier than $y$, then it contains $y$). The strategy is correct by the correctness of strategy \ref{stgy:2}.
 \end{enumerate}
 \subproblem %b
 None of the strategies is correct. The strategies don't consider weight. Suppose the activities are $\{(1, 3), (2, 4)\}$. If the strategy outputs $\{(1, 3)\}$, then let $w(1, 3) < w(2, 4)$ and it fails. Otherwise let $w(1, 3) > w(2, 4)$ and it fails.
