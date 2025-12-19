@@ -1,0 +1,305 @@
+\documentclass{article}
+\input{preamble}
+\usepackage{tikz}
+\usetikzlibrary{quotes}
+
+\begin{document}
+\problem %1
+\subproblem \boxed{\Theta(n^2)}
+Suppose that the depth of node $i$ in the tree is $d(i)$, then the running time of \ta{Find$(i)$} is $\Theta(1+d(i))$.\\
+First, we show that the worst-case running time is $O(n^2)$. Since $d(i) \le n-1$ for all $i$, the running time is at most $\sum_{i=1}^{n} (1 + d(i)) \le \sum_{i=1}^{n} (1 + n - 1) = n^2$.\\
+Then we show that it is $\Omega(n^2)$. Consider a tree that is essentially a linked list, e.g., $node[i] = i-1$ for $i=2,3,\ldots,n$, and $node[1] = 1$. In this case, $d(i) \ge i-1$, so the running time is $\sum_{i=1}^{n} (1 + d(i)) \ge \sum_{i=1}^{n} i = \frac{n(n+1)}{2} = \Omega(n^2)$.\\
+Therefore, the worst-case running time is $\Theta(n^2)$ if we implement \ta{Find} without path compression. 
+
+\subproblem Suppose that the tree before iteration $i$ is $S_i$, and is $S_{n+1}$ after iteration $n$.
+Then $S_1 \xrightarrow{\ta{Find}(1)} S_2\to\ldots\to S_{n}\xrightarrow{\ta{Find}(n)} S_{n+1}$. Let $f(S)$ be the sum of the number of children of each root node in $S$. Let $d(i)$ be the depth of node $i$ in $S_i$. Note that
+$$f(S_{i+1}) - f(S_i) = \begin{cases} 0 & \text{if } d(i) = 0\\ d(i) - 1 & \text{otherwise} \end{cases}\ge d(i) - 1$$ Summing all $i$ from $1$ to $n$, we have
+$$f(S_{n+1}) - f(S_1) \ge \sum_{i=1}^{n} (d(i) - 1) = \sum_{i=1}^{n} d(i) - n.$$
+Thus, $\sum_{i=1}^{n} d(i) \le f(S_{n+1}) - f(S_1) + n$. Since $0\le f(S_{k}) \le n-1$ for all $k$, we have
+$$\sum_{i=1}^{n} d(i) \le (n-1) - 0 + n = 2n - 1.$$
+Therefore, the total running time is $\sum_{i=1}^{n} (1 + d(i)) \le 3n = O(n)$.
+
+\problem %2
+(The solution to problem 2 is totally revised; we solved the bonus after consulting Professor Zhen.)\vspace{1em}
+
+\ta{Lookup}$(i)$ is simply \textbf{return} $X[i]$.
+
+\subproblem $\ta{NextWhite}(i) = \min\{j\ge i\mid X[j]=0\}$. So, we can use the red-black tree to maintain the set $X[j]=0$ and query the successor of $i$. However, initializing the RB tree to $\{1,\cdots, n\}$ takes some time, and we can optimize\footnote{It is not an optimization in the point of asymptotic time. We have spent $O(n)$ time to allocate the array $X$ of size $n$.} the algorithm so that we start from an empty tree. When querying $i$, it is the case $X[i]=1$ that we need to search the tree. When $X[i]=1$, we have $X[\ta{NextWhite}(i)-1]=1$. So instead of maintaining $\{j\mid X[j]=0\}$, we maintain $\{j\mid X[j]=0\land X[j-1]=1\}$, which is initially $\emptyset$. The complete implementation is as follows. $T$ is an empty RB tree at the start.
+
+\begin{algo}{Blacken}{i}
+\State $X[i]=1$
+\State \ta{RB-Delete}($T, i$)
+\If{$X[i+1]=0$}
+\State \ta{RB-Insert}($T, i+1$)
+\EndIf
+\end{algo}
+
+\begin{algo}{Successor}{T, i}
+\If{$T.key < i$}
+    \State \Return $\ta{Successor}(T.right, i)$
+\EndIf
+\If{{\it T.left = NIL}}
+    \State \Return $T.key$
+\EndIf
+\State \Return $\ta{Successor}(\it T.left, i)$
+\end{algo}
+
+\begin{algo}{NextWhite}{i}
+\If{$X[i]=0$}
+\State \Return $i$
+\EndIf
+\State \Return \ta{Successor}$(T, i)$
+\end{algo}
+
+\subproblem First we demonstrate an $O(n)$\ta{Black}/$O(1)$\ta{NextWhite}, then we optimize \ta{Black} to $O(\log n)$.
+
+The $O(n)/O(1)$ algorithm: we maintain an array $Y[1..n]$, where $Y[i]=\begin{cases}0 & X[i]=0\\ \ta{NextWhite}(i) & X[i]=1 \end{cases}$. When we \ta{Black} a white position $i$, we set $X[i]=1$ and update $Y[j]$ for all $j\le i$ with $Y[j]=i$ to $Y[j]=Y[i+1]$. In the worst case, we may need to update all $n$ entries of $Y$, so \ta{Black} takes $O(n)$ time.
+
+We can optimize \ta{Black} to $O(\log n)$ using heuristic techniques similar to union-by-rank. The equivalence relation $i\sim j$ if $\ta{NextWhite}(i)=\ta{NextWhite}(j)$ partitions $\{1,\ldots,n\}$ into disjoint sets. The algorithm choose a representative for each set. Note that the elements in each set are consecutive numbers. For each representative $r$ of set $S_r$, we maintain $Y[r]=\ta{NextWhite}(r)=\max\{S_r\}, L[r]=\min\{S_r\}$. And for a non-representative $i$, we maintain a pointer $Z[i]$ to the representative of its set. The complete algorithm is as follows. Assume $Y[i]=i, L[i]=i, Z[i]=i$ for all $i$ at the start.
+
+\begin{algo}{Black}{i}
+\If{$X[i]=1$}
+    \State \Return
+\EndIf
+\State $X[i]=1$
+\State $r1=Z[i],\ r2=Z[i+1]$
+\If{$Y[r1]-L[r1] < Y[r2]-L[r2]$}
+    \For{$j=L[r1]$ to $Y[r1]$}
+        \State $Z[j]=r2$
+    \EndFor
+    \State $L[r2]=L[r1]$
+\Else
+    \For{$j=L[r2]$ to $Y[r2]$}
+        \State $Z[j]=r1$
+    \EndFor
+    \State $Y[r1]=Y[r2]$
+\EndIf
+\end{algo}
+
+\begin{algo}{NextWhite}{i}
+\State \Return $Y[Z[i]]$
+\end{algo}
+
+\vspace{1em}
+\textbf{Running time} \ta{NextWhite} obviously takes $O(1)$ time. To analyze \ta{Black}, we use the accounting method. In any sequence of $m$ \ta{Black} operations, suppose $m'$ of them merge two sets. There are at most $m'$ positions $i$ that $Z[i]$ has been updated in the for loops. We charge each update 1 credit. Since the size of the set at least doubles after each merge, each position pays at most $\log n$ in total. Therefore, the total cost of all \ta{Black} operations is $O(m) + m'\log n$, and each \ta{Black} operation takes $O(\log n)$ time in the amortized sense.
+
+\subproblem[ {[Bonus]}]Use the same set partition plan as in (b). However, we use DSU with path compression and union by size to maintain the sets. Note that merges only happen between the largest element of a set and the smallest element of the next set. So we can maintain a pointer $s[i].p$ for each element $s[i]$ to its set representative if $s[i]$ the smallest or largest element of the set contains $s[i]$.
+The complete algorithm is as follows. Assume $s[i]=\it NIL$ for all $i$ at the start.
+
+\begin{algo}{Make-Set'}{i}
+\If{$s[i]=\it NIL$}
+    \State $s[i]=\ta{Make-Set}(i)$
+    \State $s[i].p = i$
+    \State $s[i].l = i$
+    \State $s[i].r = i$
+\EndIf
+\end{algo}
+
+\begin{algo}{Black}{i}
+\If{$X[i]=1$}
+    \State \Return
+\EndIf
+\State $X[i]=1$
+\State $\ta{Make-Set'}(i), \ta{Make-Set'}(i+1)$
+\State $root=\ta{Union}(s[i].p, s[i+1].p)$
+\State $root.l=s[i].l, root.r=s[i+1].r$
+\end{algo}
+
+\begin{algo}{NextWhite}{i}
+\If{$X[i]=0$}
+    \State \Return $i$
+\EndIf
+\State \Return $\ta{Find}(s[i]).r$
+\end{algo}
+
+\vspace{1em}
+\textbf{Running time} \ta{Black} always unions two roots, so it takes $O(1)$ time in the worst case. Suppose we perform $m$ \ta{Black} and $k$ \ta{NextWhite} operations in total. Each \ta{Black} calls \ta{Union} once, and each \ta{NextWhite} calls \ta{Find} once. By the analysis of DSU with path compression and union by size, the total time of all \ta{Union} and \ta{Find} calls is $O((m+k)\lg^*(n))$.
+Therefore, we can conclude that the amortized running time of \ta{Black} and \ta{NextWhite} is $O(\lg^*(n))$. But \ta{Black} takes $O(1)$ time in the worst case.
+
+\section*{Bonus problem}
+Twice DFS will give the diameter of a tree. The first DFS finds one farthest node $v$ from an arbitrary node $u$. The second DFS finds the farthest node $w$ from $v$. $d(w,v)$ is the diameter of the tree.
+
+\begin{algo}{dfs1}{u}
+\State $vis[i] = 1$
+\For{each neighbor $v$ of $u$}
+    \If{$vis[v] = 0$}
+        \State $d[v] = d[u] + 1$
+        \State \ta{dfs1}$(v)$
+    \EndIf
+\EndFor
+\end{algo}
+
+\begin{algo}{Diameter}{T}
+\State $d[1] = 0, vis[\,] = 0$
+\State \ta{dfs1}$(1)$
+\State $v = $ node with maximum $d[\,]$
+\State $d[v] = 0, vis[\,] = 0$
+\State \ta{dfs1}$(v)$
+\State \Return maximum of $d[\,]$
+\end{algo}
+
+\vspace{1em}
+Suppose $p=(x_0, x_1, \ldots, x_k)$ is a diameter path, $s=x_0,\,t=x_k$. We will show that $d(s,v)\ge d(s,t)$.
+
+Let $T_i$ be the DFS tree rooted at $x_i$ on $(V, E-p)$.
+
+Suppose $u\in T_i$ and $v\in T_j$. Without loss of generality, assume $i\le j$ (otherwise, we can reverse $p$).
+There are two cases:
+\begin{itemize}
+\item If $i < j$,
+
+\input{tikz/diameter-1}
+\begin{flalign*}
+d(s,v)&=d(u,v)-d(u,x_i)+d(s,x_i) &\\
+      &\ge d(u,t)-d(u,x_i)+d(s,x_i) &\\
+      &=d(s,t)& 
+\end{flalign*}
+\item If $i=j$, suppose the least common ancestor of $u$ and $v$ in $T_i$ is $x$. Then
+
+\input{tikz/diameter-2}
+\begin{flalign*}
+d(s,v)&=d(u,v)-d(u,x)+d(s,x) &\\
+      &\ge d(u,t)-d(u,x)+d(s,x) &\\
+      &=d(s,t)+2d(x_i,x)&\\
+      &\ge d(s,t)&
+\end{flalign*}
+\end{itemize}
+Therefore, $d(s,v)\ge d(s,t)$. And $d(w,v)\ge d(s,v)\ge d(s,t)$, so the algorithm correctly returns the diameter of the tree.
+\problem %3
+\subproblem We list the nodes in the order of \ta{BFS} traversal.\\[1em]
+\begin{tabular}{|l|c|c|c|c|c|c|c|c|}
+\hline
+\textit{node} & A & B & G & H & C & E & D & F \\\hline
+\textit{distance} & 0 & 1 & 1 & 1 & 2 & 2 & 3 & 3 \\\hline
+\textit{parent} & \textit{NIL} & A & A & A & B & B & C & E \\\hline
+\end{tabular}
+\subproblem {\color{red}\rule{2ex}{2ex}} forward edge(s),
+{\color{yellow}\rule{2ex}{2ex}} back edges,
+{\color{green}\rule{2ex}{2ex}} cross edges.
+\rule{2ex}{2ex} tree edges.\\
+\includegraphics[width=0.5\textwidth]{ps9a.png}
+\subproblem The final ordering is \textit{p n o s m r y v x w z u q t}.
+
+\problem %4
+\subproblem
+\textbf{True}. Suppose $G=(\{1, 2, 3\}, \{(2, 1), (3, 2)\})$. Node $2$ has one incoming edge $(3, 2)$ and one outgoing edge $(2, 1)$. If DFS visits nodes in the order of $1, 2, 3$. Then node $2$ forms a tree alone in the DFS forest.
+\subproblem \textbf{False}. Suppose there is an algorithm $A$ that can determine whether $G=(V, E)$ is cyclic in $O(|V|)$ time. We can build an algorithm $B$ to determine whether $G$ is cyclic. The input of $B$ is the number of nodes $n$. $B$ can only access $E$ through \ta{Next}$(i)$, which removes the head of the adjacency list of node $i$ and returns it. The running time of $B$ is $O(n)$. Assume it runs in $c\,n$ time. The adversary choose $n = 2c + 2$ and running $B$ on $n$. The adversary corresponds \ta{Next} as if $G=(\{1, 2, \cdots, n\}, \{(u, v)\mid 1 \le v < u \le n\})$. If there exists some $i < n$, $\ta{Next}(i)$ is not called for $i$ times, then the adversary can add an edge $(i, n)$ to $E$ without being detected, making $G$ cyclic.
+Hence, $i<n,\,\ta{Next}(i)$ must be called $i$ times. Yielding totally at least $\frac{n(n-1)}{2}$ calls to \ta{Next}. But $\frac{n(n-1)}{2} > c\,n$ when $n = 2c + 2$, which leads to a contradiction. So, such algorithm $A$ does not exist.
+\subproblem[ {[bonus]}]The following algorithm performs topological sort in $O(|V| + |E|)$ time.
+
+\begin{algo}{TopoSort}{G}
+\State $n = |G.V|$
+\State $inDegree[1..n] = 0$
+\For{each $u$ in $G.V$}
+    \For{each $v$ in $G.Adj[u]$}
+        \State $inDegree[v] = inDegree[v] + 1$
+    \EndFor
+\EndFor
+\State $Q = $ empty queue
+\For{$i = 1$ to $n$}
+    \If{$inDegree[i] = 0$}
+        \State Enqueue $i$ to $Q$
+    \EndIf
+\EndFor
+\State $res = [\,]$
+\While{$Q$ is not empty}
+    \State $u = $ Dequeue $Q$
+    \State Append $u$ to $res$
+    \For{each $v$ in $G.Adj[u]$}
+        \State $inDegree[v] = inDegree[v] - 1$
+        \If{$inDegree[v] = 0$}
+            \State Enqueue $v$ to $Q$
+        \EndIf
+    \EndFor
+\EndWhile
+\If{$res.len < n$}
+    \State \Return \textit{NIL}
+\Else
+    \State \Return $res$
+\EndIf
+\end{algo}
+
+\vspace{1em}
+Explanation: The algorithm first computes the in-degrees of all nodes. Then, it repeatedly removes nodes with in-degree 0 and updates the in-degrees of their neighbors. If at the end, not all nodes are included in the result, it indicates that there is a cycle in the graph, and the algorithm returns \textit{NIL}. Otherwise, it returns a valid topological ordering.
+
+Running time: Computing in-degrees takes $O(|V| + |E|)$ time. Each node is enqueued and dequeued at most once, and each edge is examined once when updating in-degrees, leading to a total running time of $O(|V| + |E|)$.
+
+\section*{Problem Set I}
+\paragraph{Problem I.1}
+\begin{algorithmic}[1]
+\State $i = 1$
+\For{$j = 2$ to $n$}
+    \If{$G.E[i][j] = 1$}
+        \State $i = j$
+    \EndIf
+\EndFor
+\State \Return $\sum_{j=1}^{n} G.E[i][j] = 0\land \sum_{k=1}^{n} G.E[k][i] = n-1\quad (*)$
+\end{algorithmic}
+
+\vspace{1em}
+The running time is $O(n)$.
+
+Correctness: Note that $i$ satisfies the property ``vertex $i$ has in-degree $|V|-1$ and out-degree $0$'' if and only if ($\ast$) holds.
+
+Invariant: At the start of each iteration of the for loop, $i < j$, and all vertices in $\{1, 2, \ldots, j-1\} - \{i\}$ can not be the target.
+
+Base: Before the first iteration, $j=2$ and $\{1\} - \{i\} = \emptyset$. The invariant holds.
+
+Induction: Suppose the invariant holds at the start of iteration where $j=k$ ($2 \le k \le n$). We need to show that it also holds at the start of the next iteration $j = k+1$. If $G.E[i][k] = k$, then vertex $i$ can not be the target since it has an outgoing edge. We set $i = k$, and all vertices in $\{1, 2, \ldots, k\} - \{i\}$ can not be the target. If $G.E[i][k] = 0$, then vertex $k$ can not be the target since it does not have an incoming edge from $i$. By the induction hypothesis, all vertices in $\{1, 2, \ldots, k-1\} - \{i\}$ can not be the target. Thus, all vertices in $\{1, 2, \ldots, k\} - \{i\}$ can not be the target. In both cases, $i < k+1$ holds. Therefore, the invariant holds at the start of the next iteration.
+
+Termination: After the for loop, all vertices in $\{1, 2, \ldots, n\} - \{i\}$ can not be the target. Only vertex $i$ may be the target. We check whether $i$ satisfies the property by ($\ast$). The algorithm is correct.
+
+\paragraph{Problem I.2}
+Let $G = (\{1, 2, \cdots, k\}, \{(u, v)\mid\text{Some customer would like to see } M_u, M_v \})$. Then, there is a schedule where each movie is shown at most once and all customers are satisfied if and only if $G$ can be colored with 2 colors such that no adjacent nodes share the same color. The following algorithm, given the adjacency list of $G$, determines whether such coloring exists in $O(k + m)$ time, where $m$ is the number of edges in $G$ (the number of customers).
+
+\begin{algo}{DFS2}{G,u}
+\For{$v$ in $G.Adj[u]$}
+    \If{$color[v] = \textit{NIL}$}
+        \State $color[v] = \begin{cases}\textit{Saturday} & \text{if } color[u] = \textit{Sunday}\\ \textit{Sunday} & \text{if } color[u] = \textit{Saturday}\end{cases}$
+        \If{$\lnot \ta{DFS2}(G, v)$}
+            \State \Return \texttt{False}
+        \EndIf
+    \ElsIf{$color[v] = color[u]$}
+        \State \Return \texttt{False}
+    \EndIf
+\EndFor
+\State \Return \texttt{True}
+\end{algorithmic}
+
+\ta{Bipartite}$(G)$
+\begin{algorithmic}[1]
+\State $color[1..k] = \textit{NIL}$
+\For{each $u$ in $G.V$}
+    \If{$color[u] = \textit{NIL}$}
+        \State $color[u] = \textit{Saturday}$
+        \If{$\lnot \ta{DFS2}(G, u)$}
+            \State \Return \texttt{False}
+        \EndIf
+    \EndIf
+\EndFor
+\State \Return $color$
+\end{algo}
+
+\vspace{1em}
+Explanation: The algorithm uses DFS to color the graph. It starts from an uncolored node, assigns it a color (Saturday), and recursively colors its neighbors with the opposite color. If it encounters a neighbor that has already been colored with the same color as the current node, it returns False, indicating that the graph is not bipartite. If all nodes can be colored without conflicts, it returns the coloring.
+
+Running time: Each node is visited once, and each edge is examined once during the DFS. Thus, the total running time is $O(k + m)$.
+
+\paragraph{Problem I.3}
+\begin{algorithmic}[1]
+\State $a = \ta{Topological-Sort}(G)$
+\For{$i = n$ down to $1$}
+    \If{$a[i]$ refers to number $num$}
+        \State $val[a[i]] = num$
+    \ElsIf{$a[i]$ refers to expression `$x\;op\;y$'}
+        \State $val[a[i]] = val[x]\;op\;val[y]$
+    \EndIf
+\EndFor
+\State \Return $val[a[1]]$
+\end{algorithmic}
+
+\vspace{1em}
+Explanation: The algorithm first performs a topological sort on the DAG representing the arithmetic expression. Then, it processes the nodes in reverse topological order. For number nodes, it assigns their values directly. For expression nodes, it computes their values based on the values of their operand nodes, which have already been computed due to the topological ordering.
+
+Running time: Topological sort takes $O(|V| + |E|)$ time. Processing each node takes $O(1)$ time, leading to a total running time of $O(|V| + |E|)$.
+\end{document}
