@@ -43,7 +43,7 @@ $$f(u) = w(u) + \sum_{(u,v)\in E} \max\{0, f(v)\}$$
 The maximum weight subtree of the entire tree $T$ might be highest at any node $u$. Therefore, $$maxSubtreeWeight=\max_{u\in V} f(u)$$
 \textbf{Time complexity:} $O(n)$.
 \problem %2
-We devise an $O(n^2)$ dynamic programming algorithm. First we compute the dynamic programming table $dp[1..n,1..n]$, where $dp[i,j]$ is the length of the longest common suffix of $T[1..i]$ and $T^R[1..j]$. Since substrings ending at $j$ in $T^R$ corresponds to substrings starting at $n-j+1$ in $T$. Thus, if $dp[i,j]$ corresponds to a common suffix of length $k$, then $T[i-k+1..i] = reverse(T[n-j+1..n-j+k])$. The substring should not overlap. Note that we can only consider the case that $i < n-j+1$, since the case $n-j+k<i-k+1$ is considered symmetrical when $j'=n - i + k$ and $i' = n - j + k$.
+We devise an $O(n^2)$ dynamic programming algorithm. First we compute the dynamic programming table $dp[1..n,1..n]$, where $dp[i,j]$ is the length of the longest common suffix of $T[1..i]$ and $T^R[1..j]$. Since substrings ending at $j$ in $T^R$ corresponds to substrings starting at $n-j+1$ in $T$. Thus, if $dp[i,j]$ corresponds to a common suffix of length $k$, then $T[i-k+1..i] = reverse(T[n-j+1..n-j+k])$. The substrings should not overlap. Note that we can only consider the case that $i < n-j+1$, since the case $n-j+k<i-k+1$ is considered symmetrical when $j'=n - i + k$ and $i' = n - j + k$.
 \begin{algo}{Longest-Contiguous-Substring}{T[1..n]}
   \For{$i=1$ to $n$}
     \For{$j=1$ to $n$}
