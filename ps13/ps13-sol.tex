@@ -1,0 +1,176 @@
+\documentclass{article}
+\input{preamble}
+\title{ALG Problem Set 13}
+\begin{document}
+\problem %1
+\subproblem First we check if all weights are non-positive. If so, we output an edge with maximum weight. Otherwise, we run the following algorithm.
+\begin{algo}{Max-Weight-Path}{T, w, u}
+  \State $u.vis=\it True$
+  \State $max1=0, max2=0$
+  \For{each $v\in T.Adj[u]$ that $v.vis=\it False$}
+    \State $x=\Call{Max-Weight-Path}{T, w, v}$
+    \State $x=\max\{0,x+w(u,v)\}$
+    \State update $max1, max2$ to be the largest and second largest values among $\{max1, max2, x\}$
+  \EndFor
+  \State $maxPathWeight = \max\{maxPathWeight, max1+max2\}$
+  \State \Return $max1$
+\end{algo}
+
+\vspace{1em} The answer is stored in the global variable $maxPathWeight$, (initialized to 0) after running \ta{Max-Weight-Path}$(T, w, 1)$.
+
+\textbf{Correctness:} We view the $T$ as a directed tree rooted at $u$. Then any path has a unique highest node. The maximum-weight path can be decomposed into two downward paths starting from the highest node. The algorithm computes the maximum downward path starting from each node recursively, and treats each node as the highest node to update the global maximum path weight. Since there are some positive-weight edges, the algorithm will eventually consider a path with positive weight.
+
+\textbf{Time complexity:} Each node is visited once, and for each node, we iterate through its adjacency list once. Therefore, the time complexity is $O(|V|+|E|)=O(n)$.
+
+\subproblem Initialize $maxSubtreeWeight = -\infty$, and run the following algorithm.
+\begin{algo}{Max-Weight-Subtree}{T, w, u}
+  \State $u.vis=\it True$
+  \State $total=w(u)$
+  \For{each $v\in T.Adj[u]$ that $v.vis=\it False$}
+    \State $x = \Call{Max-Weight-Subtree}{T, w, v}$
+    \If{$x > 0$}
+      \State $total = total + x$
+    \EndIf
+  \EndFor
+  \State update $maxSubtreeWeight = \max\{maxSubtreeWeight, total\}$
+  \State \Return $total$
+\end{algo}
+
+\vspace{1em} The answer is stored in $maxSubtreeWeight$ after running $\Call{Max-Weight-Subtree}{T, w, 1}$.
+
+\textbf{Correctness:} Let $f(u)$ be the maximum weight of a subtree which contains $u$ as its highest node from the view of the DFS tree.
+$$f(u) = w(u) + \sum_{(u,v)\in E} \max\{0, f(v)\}$$
+The maximum weight subtree of the entire tree $T$ might be highest at any node $u$. Therefore, $$maxSubtreeWeight=\max_{u\in V} f(u)$$
+\textbf{Time complexity:} $O(n)$.
+\problem %2
+We devise an $O(n^2)$ dynamic programming algorithm. First we compute the dynamic programming table $dp[1..n,1..n]$, where $dp[i,j]$ is the length of the longest common suffix of $T[1..i]$ and $T^R[1..j]$. Since substrings ending at $j$ in $T^R$ corresponds to substrings starting at $n-j+1$ in $T$. Thus, if $dp[i,j]$ corresponds to a common suffix of length $k$, then $T[i-k+1..i] = reverse(T[n-j+1..n-j+k])$. The substring should not overlap. Note that we can only consider the case that $i < n-j+1$, since the case $n-j+k<i-k+1$ is considered symmetrical when $j'=n - i + k$ and $i' = n - j + k$.
+\begin{algo}{Longest-Contiguous-Substring}{T[1..n]}
+  \For{$i=1$ to $n$}
+    \For{$j=1$ to $n$}
+      \If{$T[i] = T[n - j + 1]$}
+        \State $dp[i,j] = dp[i-1,j-1] + 1$
+        \If{$i<n-j+1$}
+          \State $maxLength = \max\{maxLength, dp[i,j]\}$
+        \EndIf
+      \Else
+        \State $dp[i,j] = 0$
+      \EndIf
+    \EndFor
+  \EndFor
+  \State \Return $maxLength$
+\end{algo}
+
+\vspace{1em}Dynamic programming is NOT good. We can use suffix array to solve the longest contiguous substring problem in $O(n\lg n)$:
+\begin{itemize}
+  \item Construct the suffix array and the LCP(longest common prefix) array for $T\#T^R$ in $O(n\lg n)$ time.
+  \item Since the property that $T$ has a $k$-length contiguous substring is monotonic, we can binary search the maximum $k$. For each $k$ we check, group the suffixes by their first $k$ characters in $O(n)$ time. This is done by splitting the SA whenever $lcp(i,i-1) < k$.
+  \item For each group, we check if there exists suffixes from both $T$ and $T^R$ such that they are not overlapped. If so, then $T$ has a $k$-length contiguous substring and vise versa.
+  \item The binary search does $O(\lg n)$ iterations, each taking $O(n)$ time, so the total time is $O(n\lg n)$.
+\end{itemize}
+Moreover, we can use suffix tree to solve the longest common substring problem in $O(n)$ time \cite{algo}, and I guess it can be modified to solve this problem in linear time as well.
+\problem %3
+Let $f[i,j]$ be the maximum reliability of the first $i$ stages with total cost $\le j$.
+$$f[i,j] = \begin{cases} 0 & j < 0 \\ 1 & j \ge 0\land i = 0 \\ \max\limits_{k\ge0}\{f[i-1,j-k\cdot c_i]\cdot (1-(1-r_i)^k)\} & j \ge 0\land i \ge 1 \end{cases}$$
+\begin{algo}{Max-Reliability}{B,r[1..n],c[1..n]}
+  \For{$j=0$ to $B$}
+    \State $dp[0,j]=1$
+  \EndFor
+  \For{$i=1$ to $n$}
+    \For{$j=0$ to $B$}
+      \State $dp[i,j]=0, choice[i,j]=0$
+      \For{$k=1$ to $\lfloor j/c[i] \rfloor$}
+        \State $x=dp[i-1,j - k\cdot c[i]] \cdot (1 - (1 - r[i])^k)$
+        \If{$x > dp[i,j]$}
+          \State $dp[i,j] = x$
+          \State $choice[i,j] = k$
+        \EndIf
+      \EndFor
+    \EndFor
+  \EndFor
+  \State $b=B$
+  \For{$i=n$ down to $1$}
+    \State $k=choice[i,b]$
+    \State $m[i]=k$
+    \State $b = b - k \cdot c[i]$
+  \EndFor
+  \State \Return $dp[n,B], m$
+\end{algo}
+
+\vspace{1em} The answer is $dp[n,B]$, and the redundancies for each stage are $m[1..n]$.
+
+\textbf{Time complexity:} The three nested loops run in $O(n\cdot B \cdot \frac{B}{\min c_i}) = O(\frac{nB^2}{\min c_i})$ time.
+\problem %4
+\subproblem We can solve the 0-1 knapsack problem using dynamic programming. Let $f[i,w]$ be the maximum value that can be attained with weight less than or equal to $w$ using the first $i$ items. The recurrence relation is:
+$$f[i,w] = \begin{cases}  f[i-1,w] & \text{if } w_i > w \\ \max(f[i-1,w], f[i-1,w-w_i] + v_i) & \text{if } w_i \le w \end{cases}$$
+\begin{algo}{Knapsack}{w[1..n], v[1..n], W}
+  \For{$j=0$ to $W$}
+    \State $dp[j]=0$
+  \EndFor
+  \For{$i=1$ to $n$}
+    \For{$j=W$ down to $w[i]$}
+      \State $dp[j] = \max(dp[j], dp[j - w[i]] + v[i])$
+    \EndFor
+  \EndFor
+  \State \Return $dp[W]$
+\end{algo}
+\subproblem No. If the problem is encoded in some reasonable way (e.g., binary), then the algorithm above is not polynomial in the size of the input $N$. We can consider an extreme case where $n=1$, $w_1=v_1=1$, and the weight limit $W$ is the only variable part of the input. Then, $N = O(\log W)$. However, the running time of the algorithm is $\Omega(W)$, which is exponential in $N$.
+\problem %5
+\begin{thm}\label{thm:closure}
+  If languages $L_1$ and $L_2$ are decidable in $O(n^k)$ time, then languages
+  $L_1\cup L_2, L_1\cap L_2, \overline{L_1}$ are all decidable in $O(n^k)$ time.
+\end{thm}
+\begin{proof}
+  Let algorithm $A_1$ decides $L_1$ and $A_2$ decides $L_2$, both in $O(n^k)$ time.
+  We construct $A_\cup, A_\cap, \overline{A}$ as follows:
+  \begin{itemize}
+    \item $A_\cup$ on input $x$ runs $A_1$ on $x$. If $A_1$ accepts, then accept. Otherwise, run $A_2$ on $x$ and accept if $A_2$ accepts; reject otherwise.
+    \item $A_\cap$ on input $x$ runs $A_1$ on $x$. If $A_1$ rejects, then reject. Otherwise, run $A_2$ on $x$ and accept if $A_2$ accepts; reject otherwise.
+    \item $\overline{A}$ on input $x$ runs $A_1$ on $x$. If $A_1$ accepts, then reject; otherwise accept.
+  \end{itemize}
+  Each of these algorithms runs in $O(n^k)$ time since they each run at most two subroutines that run in $O(n^k)$ time. It is clear from the construction that they decide the respective languages.
+\end{proof}
+\begin{thm}
+  If $L_1$, $L_2$ are decidable in $O(n^k)$ time, then $L_1L_2$ is decidable in $O(n^{k+1})$ time.
+\end{thm}
+\begin{proof}
+  Let algorithm $A_1$ dec and treats each node as the highest node to update the global maximum path weight. Since there are some positive-weight edges, the algorithm will eventually consider a path with positive weight.
+
+  \item $A_{concat}$ on input $x$ of length $n$ iterates through all possible splits of $x$ into two substrings $x_1, x_2$ such that $x = x_1 x_2$. For each split, it runs $A_1$ on $x_1$ and $A_2$ on $x_2$. If both accept, then accept; if no split leads to acceptance, then reject.
+
+  There are $n+1$ possible splits of a string of length $n$. For each split, we run two subroutines $A_1$ and $A_2$ that each take $O(n^k)$ time. Therefore, the total time taken by $A_{concat}$ is $O((n+1) \cdot 2 \cdot n^k) = O(n^{k+1})$.
+\end{proof}
+\begin{thm}
+  If $L$ is decidable in $O(n^k)$ time, then $L^*$ is decidable in $O(n^{k+2})$ time.
+\end{thm}
+\begin{proof}
+  Let algorithm $A$ decide $L$ in $O(n^k)$ time.
+  $A_{star}$ on input $x[1..n]$ uses dynamic programming to determine if $x\in L^*$, or, if $x$ can be segmented into substrings, each of which is in $L$.
+
+  Let $dp[i]$ be a boolean value indicating whether the substring $x[1..i]\in L^*$. For each $i\ge 1$, $x[1..i]\in L^*$ if and only if $x[1..i]$ can be split into $x[1..j]$ and $x[j+1..i]$ such that $x[1..j]\in L^*$ and $x[j+1..i]\in L$ for some $0\le j < i$. So, the recurrence relation is:
+  $$dp[i] = \begin{cases} \it True & i=0 \\ \bigvee_{j=0}^{i-1} (dp[j] \land A(x[j+1..i])) & i>0
+  \end{cases}$$
+\begin{algo}{Astar}{x[1..n]}
+  \State $dp[0]=\it True$
+  \For{$i=1$ to $n$}
+    \State $dp[i]=\it False$
+    \For{$j=0$ to $i-1$}
+      \If{$dp[j]=\it True$ and $\Call{A}{x[j+1..i]}=\it True$}
+        \State $dp[i]=\it True$
+        \State \textbf{break}
+      \EndIf
+    \EndFor
+  \EndFor
+  \State \Return $dp[n]$
+\end{algo}
+
+  \vspace{1em} The outer loop runs $n$ times, and for each iteration, the inner loop also runs up to $n$ times. For each pair $(i,j)$, we run $A$, which takes $O(n^k)$ time. Therefore, the total time taken by $A_{star}$ is $O(n \cdot n \cdot n^k) = O(n^{k+2})$.
+\end{proof}
+\problem %6
+\subproblem If there is a polynomial-time algorithm to decide $L$, the algorithm can be easily converted to a two-argument verification algorithm that simply ignores any certificate and accepts exactly those input strings it determines to be in $L$. Thus, P $\subseteq$ co-NP.
+\subproblem Assume for the sake of contradiction that P = NP. Since P is closed under complement by theorem \ref{thm:closure}, NP is also closed under complement. We define co-NP as the class of languages whose complements are in NP. So, NP = co-NP, contradicting the given condition that NP $\neq$ co-NP. Therefore, P $\neq$ NP.
+
+\begin{thebibliography}{9}
+\bibitem{algo}
+  Gusfield, D.: Algorithms on Strings, Trees and Sequences: Computer Science and Computational Biology. Cambridge University Press, Cambridge (1999)
+\end{thebibliography}
+\end{document}
