@@ -1,0 +1,28 @@
+\begin{tikzpicture}[dgraph]
+\def\a{1.2}
+\node["$r$" {above}, bnode] (r) at (0,0) {$0$};
+\node["$s$" {above}, bnode] (s) at (\a,0) {$-1$};
+\node["$t$" {above}, bnode] (t) at (2*\a,0) {$1$};
+\node["$x$" {above}] (x) at (3*\a,0) {$5$};
+\node["$y$" {above}] (y) at (4*\a,0) {$5$};
+\node["$z$" {above}] (z) at (5*\a,0) {$3$};
+\path
+    (r) edge node[tt, above] {$-1$} (s)
+    (s) edge node[tt, above] {$2$} (t)
+    (t) edge node[tt, above] {$7$} (x)
+    (x) edge node[tt, above] {$-1$} (y)
+    (y) edge node[tt, above] {$-2$} (z)
+    (r) edge[bend right=50] node[tt, yshift=5pt] {$3$} (t)
+    (s.north) edge[bend left=50] node[tt, yshift=5pt] {$6$} (x.north)
+    (x.north) edge[bend left=50] node[tt, yshift=5pt] {$1$} (z.north)
+    (t) edge[bend right=50] node[tt, yshift=5pt] {$4$} (y)
+    (t) edge[bend right=50] node[tt, yshift=5pt, pos=0.8] {$2$} (z)
+;
+\scoped[on background layer]{
+    \draw[emph] (r.center) -- (s.center);
+    \draw[emph] (s.center) -- (t.center);
+    \draw[shorten <=-3pt, shorten >=-3pt] (s.north) edge[-,emph,bend left=50] (x.north);
+    \draw (t) edge[-,emph,bend right=50] (y);
+    \draw (t) edge[-,emph,bend right=50] (z);
+}
+\end{tikzpicture}

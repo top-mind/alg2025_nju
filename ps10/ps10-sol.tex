@@ -69,7 +69,9 @@ $T - u$ is a spanning tree of $G - u$. Let the deletion order be the post-traver
     \draw[->] (n3) -- (n5);
     \draw[->] (n7) -- (n4);
     \draw[->] (n7) -- (n5);
-\end{tikzpicture} \\[1em]
+\end{tikzpicture}
+
+\vspace{2em}
 Let $f:V\to\{\textit{True},\textit{False}\}$, $f(\overline{x_i})=\neg f(x_i)$. $f(x_1), f(x_2), \cdots, f(x_n)$ be an assignment of $x_1, x_2, \cdots x_n$. \\[1ex]
 \tightsubproblem %b
 \textit{Proof.} Assume $I$ is satisfiable. Exists $f$, $I(f(x_1), f(x_2), \cdots, f(x_n))=\it True$. Since for each $(u, v)\in E$, clause $\overline{u}\lor v$ or $v\lor\overline{u}$ is in $I$. So $\textit{True}  =\overline{u}\lor v=\neg f(u)\lor f(v)$, $f(u)\rightarrow f(v)$. Because of $x_i$ and $\overline{x_i}$ is in a connected component, $x_i \rightarrow^{*} \overline{x_i}$ and vice versa. Boolean algebra on the paths between $x_i$ and $\overline{x_i}$ gives a contradictory formula $f(x_i)\leftrightarrow\neg f(x_i)$. Therefore, $I$ is unsatisfiable.

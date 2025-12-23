@@ -1,0 +1,21 @@
+\begin{tikzpicture}[dgraph]
+\def\a{2}
+\node["$-5$"] (0)         at (0,\a)     {a};
+\node["$-3$"] (1)         at (\a,\a)    {b};
+\node["$0$"] (2)         at (\a*2,\a)   {c};
+\node["$-1$" {below}] (3) at (0,0)      {d};
+\node["$-4$" {below}] (4) at (\a,0)     {e};
+\node["$-8$" {below}] (5) at (\a*2,0)   {f};
+\path
+(0) edge node[tt,above,pos=0.8] {0 } (4)
+(1) edge node[tt,above] {3 } (0)
+(1) edge node[tt,pos=0.8,above] {0 } (3)
+(2) edge node[tt,above] {5 } (1)
+(2) edge[bend left=20,right] node[tt] {0} (5)
+(3) edge node[tt, left] {0 } (0)
+(3) edge node[tt, below] {6 } (4)
+(4) edge node[tt, right] {6 } (1)
+(5) edge node[tt, below] {0 } (1)
+(5) edge[bend left=20] node[tt, left] {2 } (2)
+;
+\end{tikzpicture}

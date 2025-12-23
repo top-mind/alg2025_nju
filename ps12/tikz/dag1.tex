@@ -1,0 +1,22 @@
+\begin{tikzpicture}[dgraph]
+\def\a{1.2}
+\node["$r$" {above}] (r) at (0,0) {$0$};
+\node["$s$" {above}] (s) at (\a,0) {$\infty$};
+\node["$t$" {above}] (t) at (2*\a,0) {$\infty$};
+\node["$x$" {above}] (x) at (3*\a,0) {$\infty$};
+\node["$y$" {above}] (y) at (4*\a,0) {$\infty$};
+\node["$z$" {above}] (z) at (5*\a,0) {$\infty$};
+\path
+    (r) edge node[tt, above] {$-1$} (s)
+    (s) edge node[tt, above] {$2$} (t)
+    (t) edge node[tt, above] {$7$} (x)
+    (x) edge node[tt, above] {$-1$} (y)
+    (y) edge node[tt, above] {$-2$} (z)
+    (r) edge[bend right=50] node[tt, yshift=5pt] {$3$} (t)
+    (s.north) edge[bend left=50] node[tt, yshift=5pt] {$6$} (x.north)
+    (x.north) edge[bend left=50] node[tt, yshift=5pt] {$1$} (z.north)
+    (t) edge[bend right=50] node[tt, yshift=5pt] {$4$} (y)
+    (t) edge[bend right=50] node[tt, yshift=5pt, pos=0.8] {$2$} (z)
+    
+;
+\end{tikzpicture}

@@ -1,0 +1,16 @@
+\begin{tikzpicture}
+\def\a{1.2}
+\node (s) at (0,\a)    {$s$};
+\node (x) at (\a,\a)   {$x_i$};
+\node (X) at (2*\a,\a) {$x_j$};
+\node (t) at (3*\a,\a) {$t$};
+\node (u) at (\a,0)     {$u$};
+\node (v) at (2*\a,0)  {$v$};
+\draw
+    (s) -- (x)
+    (x) -- (X)
+    (X) -- (t)
+    (u) -- (x)
+    (X) -- (v)
+;
+\end{tikzpicture}

@@ -1,0 +1,20 @@
+\begin{tikzpicture}[dgraph]
+\def\a{1}
+\node["$s$" {left}]  (s) at ({-\a*sqrt(3)},0) {$0$};
+\node["$t$" {above}] (t) at (0,\a) {$\infty$};
+\node["$x$" {above}] (x) at ({\a*2},\a) {$\infty$};
+\node["$y$" {below}] (y) at (0,-\a) {$\infty$};
+\node["$z$" {below}] (z) at ({\a*2},-\a) {$\infty$};
+\path
+    (t) edge node[tt,above] {$6$} (x)
+    (t) edge[bend right=20] node[tt,left] {$2$}(y)
+    (x) edge[bend right=20] node[tt,left] {$2$}(z)
+    (y) edge[bend right=20] node[tt,right] {$1$} (t)
+    (y) edge node[tt,above] {$1$} (x)
+    (y) edge node[tt,below] {$6$} (z)
+    (z) edge[bend right=20] node[tt,right] {$7$} (x)
+    (z) edge node[tt,yshift=5pt,pos=0.2] {$3$} (s)
+    (s) edge node[tt,above,pos=0.4] {$2$} (t)
+    (s) edge node[tt,below,pos=0.4] {$5$} (y)
+;
+\end{tikzpicture}
