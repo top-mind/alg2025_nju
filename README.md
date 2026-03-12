@@ -1,3 +1,5 @@
+Upd 26/Mar/12: The course website is now private. Please visit https://chaodong.me for the latest resources.
+
 This is my solution to NJU course "Algorithm Design and Analysis" (2025 Fall) problems sets and programming assignments.
 
 The course website is at: https://chaodong.me/teaching/alg/2025/
